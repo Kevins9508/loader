@@ -45,10 +45,9 @@ public class VersionSeeker {
         return modelCode
     }
     
-    // Gets the boot manifest hash for iOS 15+ only, this will only be useful for non-Rootful jailbreaks
+    // Gets the boot manifest hash for iOS 14+ only, this will only be useful for non-Rootful jailbreaks
     static func bootmanifestHash() -> String? {
-        if #available(iOS 15.0, *) {
-            let registryEntry = IORegistryEntryFromPath(kIOMainPortDefault, "IODeviceTree:/chosen")
+            let registryEntry = IORegistryEntryFromPath(kIOMasterPortDefault, "IODeviceTree:/chosen")
 
             guard let bootManifestHashUnmanaged = IORegistryEntryCreateCFProperty(registryEntry, "boot-manifest-hash" as CFString, kCFAllocatorDefault, 0),
                   let bootManifestHash = bootManifestHashUnmanaged.takeRetainedValue() as? Data else {
@@ -56,14 +55,11 @@ public class VersionSeeker {
             }
 
             return bootManifestHash.map { String(format: "%02X", $0) }.joined()
-        } else {
-            return nil
         }
-    }
+
     // Get's iboot version, i.e iBoot-10151.60.55 or "PongoOS"
     static func ibootVersion() -> String? {
-        if #available(iOS 15.0, *) {
-            let registryEntry = IORegistryEntryFromPath(kIOMainPortDefault, "IODeviceTree:/chosen")
+            let registryEntry = IORegistryEntryFromPath(kIOMasterPortDefault, "IODeviceTree:/chosen")
 
             guard let firmwareVersionUnmanaged = IORegistryEntryCreateCFProperty(registryEntry, "firmware-version" as CFString, kCFAllocatorDefault, 0),
                   let firmwareVersionData = firmwareVersionUnmanaged.takeRetainedValue() as? Data,
@@ -72,8 +68,5 @@ public class VersionSeeker {
             }
 
             return firmwareVersionString
-        }
-
-        return nil
     }
 }
